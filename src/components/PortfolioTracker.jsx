@@ -126,9 +126,9 @@ export default function PortfolioTracker() {
     const goldAdd = extraAmt - niftyAdd;
     setExtraNiftyInv((v) => v + niftyAdd);
     setExtraGoldInv((v) => v + goldAdd);
-    // If override fields are empty, set them to computed+extra
-    setOvNifty((prev) => prev === "" ? "" : String(Number(prev) + niftyAdd));
-    setOvGold((prev) => prev === "" ? "" : String(Number(prev) + goldAdd));
+    // Always set override so current value includes extra
+    setOvNifty(String(niftyCur + niftyAdd));
+    setOvGold(String(goldCur + goldAdd));
     const now = new Date();
     setExtraLog((prev) => [...prev, { label: now.toLocaleDateString("en-IN", { month: "short", day: "numeric" }), niftyAdd, goldAdd }]);
     setExtraAmt(0);
