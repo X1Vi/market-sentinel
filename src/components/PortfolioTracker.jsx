@@ -278,10 +278,13 @@ export default function PortfolioTracker() {
       </div>
 
       {/* ── Contribution logs ── */}
-      <div className="max-h-24 space-y-0.5 overflow-y-auto">
+      <div className="max-h-48 space-y-0.5 overflow-y-auto">
         {sip.rows.length > 0 && (
           <>
-            <p className="sticky top-0 bg-zinc-900 pb-0.5 text-[7px] uppercase tracking-wider text-zinc-500">SIP Schedule ({sip.rows.length})</p>
+            <p className="sticky top-0 bg-zinc-900 pb-0.5 text-[7px] uppercase tracking-wider text-zinc-500">
+              SIP Schedule · {sip.rows.length} installments
+              {endMonth > 0 && endYear > 0 ? ` · ${startMonth}/${startYear} → ${endMonth}/${endYear}` : ` · since ${startMonth}/${startYear}`}
+            </p>
             {sip.rows.map((r, i) => (
               <div key={`s-${i}`} className="flex justify-between rounded bg-zinc-800/30 px-2 py-0.5 text-[8px]">
                 <span className="w-14 text-zinc-500">{r.label}</span>
