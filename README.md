@@ -2,6 +2,7 @@
   <h1>📊 Market Sentinel</h1>
   <p><strong>News sentiment engine + market intelligence dashboard for Indian and global markets</strong></p>
   <p>
+    <a href="https://x1vi.github.io/market-sentinel">Live Demo</a> ·
     <a href="#features">Features</a> ·
     <a href="#pages">Pages</a> ·
     <a href="#setup">Setup</a> ·
