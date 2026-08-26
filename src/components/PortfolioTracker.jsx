@@ -10,12 +10,17 @@ function monthsBetween(a, b) {
 
 // ── SIP engine (extracted, no side effects) ─────────────────
 function computeSip(params) {
-  const { startMonth, startYear, sipMonthly, annualIncrement, niftyCagr, goldCagr, targetNifty, targetGold } = params;
+  const { startMonth, startYear, endMonth, endYear, sipMonthly, annualIncrement, niftyCagr, goldCagr, targetNifty, targetGold } = params;
   const now = new Date();
   const start = new Date(startYear, startMonth - 1, 1);
   if (start > now) return { rows: [], totalInv: 0, totalCur: 0, niftyInv: 0, goldInv: 0, niftyCur: 0, goldCur: 0 };
 
-  let totalMonths = monthsBetween(start, now);
+  // Use end date if set, otherwise now
+  const hasEnd = endMonth > 0 && endYear > 0;
+  const end = hasEnd ? new Date(endYear, endMonth - 1, 1) : now;
+  const cutoff = end < now ? end : now; // SIPs stop at end, growth calculated to now
+
+  let totalMonths = monthsBetween(start, cutoff);
   if (totalMonths < 0) return { rows: [], totalInv: 0, totalCur: 0, niftyInv: 0, goldInv: 0, niftyCur: 0, goldCur: 0 };
   totalMonths = Math.max(1, totalMonths);
 
@@ -25,13 +30,14 @@ function computeSip(params) {
   for (let m = 0; m <= totalMonths; m++) {
     const sipDate = new Date(start);
     sipDate.setMonth(sipDate.getMonth() + m);
-    if (sipDate > now) break;
+    if (sipDate > cutoff) break;
 
     const yearsElapsed = Math.floor(m / 12);
     const sipAmt = Math.round(sipMonthly * Math.pow(1 + annualIncrement / 100, yearsElapsed));
     const niftyAmt = Math.round(sipAmt * targetNifty / 100);
     const goldAmt = sipAmt - niftyAmt;
 
+    // Growth always calculated to now (current value)
     const monthsActive = monthsBetween(sipDate, now);
     const yearsActive = monthsActive / 12;
 
@@ -66,6 +72,8 @@ export default function PortfolioTracker() {
 
   const [startMonth, setStartMonth] = useState(seed.sipStart.month);
   const [startYear, setStartYear] = useState(seed.sipStart.year);
+  const [endMonth, setEndMonth] = useState(0);
+  const [endYear, setEndYear] = useState(0);
   const [sipAmount, setSipAmount] = useState(seed.sipMonthly);
   const [annualInc, setAnnualInc] = useState(seed.sipAnnualIncrement);
   const [niftyCagr, setNiftyCagr] = useState(seed.expectedReturns.niftybees);
@@ -85,8 +93,8 @@ export default function PortfolioTracker() {
 
   // ── compute SIP projection ──
   const sip = useMemo(
-    () => computeSip({ startMonth, startYear, sipMonthly: sipAmount, annualIncrement: annualInc, niftyCagr, goldCagr, targetNifty, targetGold }),
-    [startMonth, startYear, sipAmount, annualInc, niftyCagr, goldCagr, targetNifty, targetGold],
+    () => computeSip({ startMonth, startYear, endMonth, endYear, sipMonthly: sipAmount, annualIncrement: annualInc, niftyCagr, goldCagr, targetNifty, targetGold }),
+    [startMonth, startYear, endMonth, endYear, sipAmount, annualInc, niftyCagr, goldCagr, targetNifty, targetGold],
   );
 
   // Total invested = SIP invested + extra contributions
@@ -137,14 +145,22 @@ export default function PortfolioTracker() {
       </div>
 
       {/* ── Row 1: SIP params ── */}
-      <div className="mb-3 grid grid-cols-5 gap-1.5">
+      <div className="mb-3 grid grid-cols-7 gap-1.5">
         <div>
           <p className="text-[7px] uppercase tracking-wider text-zinc-500">Start M</p>
           <input type="number" value={startMonth} onChange={onNum(setStartMonth)} className={ipt} />
         </div>
         <div>
-          <p className="text-[7px] uppercase tracking-wider text-zinc-500">Year</p>
+          <p className="text-[7px] uppercase tracking-wider text-zinc-500">Start Y</p>
           <input type="number" value={startYear} onChange={onNum(setStartYear)} className={ipt} />
+        </div>
+        <div>
+          <p className="text-[7px] uppercase tracking-wider text-zinc-500">End M</p>
+          <input type="number" value={endMonth} onChange={onNum(setEndMonth)} placeholder="0" className={ipt} />
+        </div>
+        <div>
+          <p className="text-[7px] uppercase tracking-wider text-zinc-500">End Y</p>
+          <input type="number" value={endYear} onChange={onNum(setEndYear)} placeholder="0" className={ipt} />
         </div>
         <div>
           <p className="text-[7px] uppercase tracking-wider text-zinc-500">SIP/Mo ₹</p>
