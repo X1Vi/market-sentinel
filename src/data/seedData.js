@@ -290,28 +290,12 @@ export const marketValuation = {
 // ---- 50/50 Portfolio Tracker ----
 export const portfolioTracker = {
   strategy: "50% NIFTYBEES + 50% GOLDBEES",
-  targetAllocation: { niftybees: 50, goldbees: 50 },
-  currentAllocation: { niftybees: 52, goldbees: 48 },
-  deviationNifty: +2.0,
-  deviationGold: -2.0,
+  sipStart: { month: 3, year: 2026 },
   sipMonthly: 5000,
-  totalInvested: 45000,
-  currentValue: 49200,
-  totalReturn: +9.3,
-  annualizedReturn: 12.8,
+  sipAnnualIncrement: 10,
+  expectedReturns: { niftybees: 12, goldbees: 10 },
+  targetRatio: { niftybees: 50, goldbees: 50 },
   maxDrawdown: 6.7,
-  lastRebalance: "14 Aug 2026",
-  nextRebalance: "14 Aug 2027",
-  sipHistory: [
-    { month: "Mar", invested: 5000, value: 5150 },
-    { month: "Apr", invested: 5000, value: 10200 },
-    { month: "May", invested: 5000, value: 15800 },
-    { month: "Jun", invested: 5000, value: 21100 },
-    { month: "Jul", invested: 5000, value: 26900 },
-    { month: "Aug (partial)", invested: 20000, value: 49200 },
-  ],
-  rebalanceSignal: false,
-  status: "ON TRACK",
 };
 
 // ---- Aggregator Sources (from market-osint-stack) ----
@@ -383,4 +367,82 @@ export const aggregatorSentimentStats = {
   avgLatencySec: 0.18,
   sourcesMonitored: 997,
   latestUpdate: "14:25 IST",
+};
+
+// ─── WORLD MARKETS ──────────────────────────────────────────
+
+export const worldIndices = [
+  { symbol: "SPX", name: "S&P 500", value: 5840.25, change: +0.62, region: "US" },
+  { symbol: "IXIC", name: "NASDAQ", value: 18920.40, change: +0.85, region: "US" },
+  { symbol: "DJI", name: "DJIA", value: 42150.80, change: +0.31, region: "US" },
+  { symbol: "FTSE", name: "FTSE 100", value: 8320.15, change: -0.18, region: "Europe" },
+  { symbol: "DAX", name: "DAX", value: 18940.50, change: +0.45, region: "Europe" },
+  { symbol: "CAC", name: "CAC 40", value: 7520.30, change: +0.28, region: "Europe" },
+  { symbol: "N225", name: "Nikkei 225", value: 39420.60, change: +0.92, region: "Asia" },
+  { symbol: "HSI", name: "Hang Seng", value: 20180.40, change: +1.12, region: "Asia" },
+  { symbol: "SHCOMP", name: "Shanghai", value: 3150.20, change: +0.55, region: "Asia" },
+  { symbol: "ASX", name: "ASX 200", value: 8040.50, change: +0.38, region: "Asia" },
+];
+
+export function generateSp500Intraday() {
+  const points = [];
+  let price = 5810;
+  const pattern = [2, 4, -1, 3, 5, -2, 1, 6, -3, 4, 2, -1, 3, 0, -2, 5, 1, -3, 4, 2, 6, -1, 3, 5, -2, 4, 1, 7, 3, -1, 5, 2, 4, 6, -3, 1, 5, 2, -1, 4, 6, 3, 0, 2, 5, -2, 4, 1, 6, 3];
+  const times = [];
+  let h = 9, m = 30;
+  for (let i = 0; i < 50; i++) {
+    times.push(`${h}:${String(m).padStart(2, "0")}`);
+    m += 5;
+    if (m >= 60) { h++; m -= 60; }
+  }
+  for (let i = 0; i < 50; i++) {
+    price += pattern[i] + (Math.random() - 0.5) * 3;
+    points.push({ time: times[i], price: +price.toFixed(2) });
+  }
+  return points;
+}
+
+export const currencies = [
+  { pair: "EUR/USD", rate: 1.1084, change: "+0.32%", direction: "bullish" },
+  { pair: "GBP/USD", rate: 1.3210, change: "+0.45%", direction: "bullish" },
+  { pair: "USD/JPY", rate: 144.25, change: "-0.28%", direction: "bearish" },
+  { pair: "USD/CHF", rate: 0.8520, change: "-0.15%", direction: "bearish" },
+  { pair: "USD/CNH", rate: 7.1240, change: "+0.08%", direction: "neutral" },
+  { pair: "DXY", rate: 101.45, change: "-0.22%", direction: "bearish" },
+];
+
+export const commodities = [
+  { name: "Gold", symbol: "XAU/USD", price: 2512.40, change: "+0.48%", sentiment: "bullish" },
+  { name: "Silver", symbol: "XAG/USD", price: 29.85, change: "+0.72%", sentiment: "bullish" },
+  { name: "Crude WTI", symbol: "CL", price: 78.40, change: "-1.15%", sentiment: "bearish" },
+  { name: "Brent", symbol: "CO", price: 82.15, change: "-1.04%", sentiment: "bearish" },
+  { name: "Copper", symbol: "HG", price: 4.12, change: "+0.55%", sentiment: "bullish" },
+];
+
+export const worldNews = [
+  { id: "wn-1", source: "Reuters", icon: "RE", time: "14:30", title: "Fed minutes hint at September rate cut — dollar weakens across board", sentiment: 0.52, label: "BULLISH", tickers: ["SPX", "DXY", "US10Y"], summary: "FOMC minutes showed broad support for rate cut. Market pricing 72% probability of 25bp cut in Sep." },
+  { id: "wn-2", source: "Bloomberg", icon: "BL", time: "14:15", title: "ECB holds rates at 3.75% — Lagarde signals data-dependent approach", sentiment: -0.08, label: "NEUTRAL", tickers: ["EURUSD", "DAX", "CAC"], summary: "ECB left rates unchanged as expected. Inflation forecast revised slightly higher to 2.3% for 2026." },
+  { id: "wn-3", source: "CNBC", icon: "CN", time: "13:55", title: "NVIDIA earnings beat estimates — revenue up 122% YoY", sentiment: 0.82, label: "STRONG BUY", tickers: ["NVDA", "SPX", "IXIC"], summary: "Revenue $30.4B vs $28.7B est. Data center revenue $26.3B. Q3 guidance above consensus." },
+  { id: "wn-4", source: "Financial Times", icon: "FT", time: "13:40", title: "Japan's Nikkei hits 34-year high on weak yen, record buybacks", sentiment: 0.65, label: "BULLISH", tickers: ["N225", "JPY", "EWJ"], summary: "Nikkei crosses 39,400. Corporate governance reforms driving record share buybacks. BOJ policy unchanged." },
+  { id: "wn-5", source: "Reuters", icon: "RE", time: "13:25", title: "China industrial profits rise 3.6% in July — beats estimates", sentiment: 0.38, label: "POSITIVE", tickers: ["SHCOMP", "HSI", "CNY"], summary: "Profits at industrial firms grew for 4th straight month. Manufacturing PMI expected above 50." },
+  { id: "wn-6", source: "Bloomberg", icon: "BL", time: "13:10", title: "Oil extends losses as OPEC+ maintains output plan despite weak demand", sentiment: -0.42, label: "BEARISH", tickers: ["CL", "CO", "XLE"], summary: "Brent below $83. OPEC+ to proceed with planned Oct production increase. China demand concerns persist." },
+  { id: "wn-7", source: "CNBC", icon: "CN", time: "12:50", title: "Gold hits new all-time high above $2,510 — ETF inflows surge", sentiment: 0.75, label: "BULLISH", tickers: ["XAUUSD", "GLD", "GDX"], summary: "Gold ETF inflows at 18-month high. Central bank buying continues. Fed cut expectations driving rally." },
+  { id: "wn-8", source: "Financial Times", icon: "FT", time: "12:35", title: "UK inflation holds at 2.2% — services inflation sticky at 5.2%", sentiment: -0.15, label: "CAUTION", tickers: ["FTSE", "GBPUSD", "UKX"], summary: "CPI unchanged. Core inflation at 3.3%. BOE rate cut expectations tempered." },
+  { id: "wn-9", source: "Reuters", icon: "RE", time: "12:20", title: "Tesla Q2 delivery miss sparks 4% pre-market drop", sentiment: -0.55, label: "BEARISH", tickers: ["TSLA", "SPX", "RIVN"], summary: "Deliveries 443,956 vs 469,000 est. Production issues at Berlin factory. Margins under pressure." },
+  { id: "wn-10", source: "Bloomberg", icon: "BL", time: "12:05", title: "European banks rally on Basel III delay — STOXX Banks +2.1%", sentiment: 0.58, label: "BULLISH", tickers: ["EUSTX", "DBK", "BNP"], summary: "EU delays implementation of Basel III capital rules by 2 years. Bank stocks surge across Europe." },
+  { id: "wn-11", source: "CNBC", icon: "CN", time: "11:45", title: "Apple Intelligence launch delayed — analysts cut iPhone 16 forecasts", sentiment: -0.32, label: "CAUTION", tickers: ["AAPL", "IXIC", "SPX"], summary: "Apple Intelligence features delayed to iOS 18.1. iPhone 16 super-cycle expectations tempered." },
+  { id: "wn-12", source: "Financial Times", icon: "FT", time: "11:30", title: "India's Nifty hits record high — FII inflows at 18-month peak", sentiment: 0.68, label: "BULLISH", tickers: ["NIFTY", "SENSEX", "INR"], summary: "Nifty crosses 24,500. FII net inflows ₹12,480 Cr this month. Domestic flows also strong." },
+  { id: "wn-13", source: "Reuters", icon: "RE", time: "11:15", title: "US jobless claims fall to 232K — labour market remains resilient", sentiment: 0.32, label: "POSITIVE", tickers: ["SPX", "DXY", "US2Y"], summary: "Initial claims below 235K consensus. Continuing claims at 1.87M. Labour market still solid." },
+  { id: "wn-14", source: "Bloomberg", icon: "BL", time: "11:00", title: "SAP surges 8% on cloud revenue beat — Europe's tech rally continues", sentiment: 0.72, label: "BULLISH", tickers: ["SAP", "DAX", "CAC"], summary: "Cloud revenue €4.8B vs €4.5B est. SAP raises full-year guidance. Stock at all-time high." },
+  { id: "wn-15", source: "CNBC", icon: "CN", time: "10:40", title: "Bitcoin breaks $68K — ETF inflows at 3-month high", sentiment: 0.62, label: "BULLISH", tickers: ["BTC", "ETH", "MSTR"], summary: "BTC ETF net inflows $540M this week. Open interest at $38B. FOMC rate cut narrative driving crypto." },
+];
+
+export const globalSentimentStats = {
+  totalArticlesToday: 18400,
+  overallAvgSentiment: 0.24,
+  positivePct: 38,
+  negativePct: 21,
+  neutralPct: 41,
+  sources: ["Reuters", "Bloomberg", "CNBC", "Financial Times", "WSJ", "BBC", "Nikkei", "SCMP"],
+  topMovers: ["NVDA", "SAP", "TSLA", "BTC", "GOLD"],
 };

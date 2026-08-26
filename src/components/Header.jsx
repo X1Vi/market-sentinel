@@ -6,7 +6,9 @@ export default function Header({ status }) {
 
   const navItems = [
     { to: "/", label: "Dashboard", icon: "◈" },
-    { to: "/news-aggregator", label: "News Aggregator", icon: "▦" },
+    { to: "/news-aggregator", label: "News Intel", icon: "▦" },
+    { to: "/world-markets", label: "World Markets", icon: "🌐" },
+    { to: "/source-health", label: "Source Health", icon: "⚙" },
   ];
 
   return (
@@ -17,22 +19,17 @@ export default function Header({ status }) {
             <span className="text-2xl">🇮🇳</span>
             <div>
               <h1 className="text-lg font-bold tracking-wide text-zinc-100">Market Sentinel</h1>
-              <p className="text-[10px] uppercase tracking-widest text-zinc-500">Indian Markets · News Sentiment Engine</p>
+              <p className="text-[10px] uppercase tracking-widest text-zinc-500">Markets · News · Signal Discovery</p>
             </div>
           </div>
           <nav className="ml-6 flex gap-1">
             {navItems.map((item) => {
               const active = item.to === "/" ? pathname === "/" : pathname.startsWith(item.to);
               return (
-                <Link
-                  key={item.to}
-                  to={item.to}
+                <Link key={item.to} to={item.to}
                   className={`flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition ${
-                    active
-                      ? "bg-emerald-500/10 text-emerald-300"
-                      : "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200"
-                  }`}
-                >
+                    active ? "bg-emerald-500/10 text-emerald-300" : "text-zinc-400 hover:bg-zinc-800 hover:text-zinc-200"
+                  }`}>
                   <span>{item.icon}</span>
                   {item.label}
                 </Link>
@@ -47,12 +44,8 @@ export default function Header({ status }) {
             <span className={`text-xs font-medium ${status.color}`}>{status.label}</span>
           </div>
           <ClientClock />
-          <a
-            href="https://groww.in"
-            target="_blank"
-            rel="noreferrer"
-            className="rounded-lg bg-gradient-to-br from-orange-500 to-pink-500 px-4 py-1.5 text-xs font-bold text-white transition hover:scale-105"
-          >
+          <a href="https://groww.in" target="_blank" rel="noreferrer"
+            className="rounded-lg bg-gradient-to-br from-orange-500 to-pink-500 px-4 py-1.5 text-xs font-bold text-white transition hover:scale-105">
             Open in Groww →
           </a>
         </div>
