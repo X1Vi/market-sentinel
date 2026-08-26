@@ -7,7 +7,8 @@ export default function Header({ status }) {
   const navItems = [
     { to: "/", label: "Dashboard", icon: "◈" },
     { to: "/news-aggregator", label: "News Intel", icon: "▦" },
-    { to: "/world-markets", label: "World Markets", icon: "🌐" },
+    { to: "/news-feed", label: "News Feed", icon: "📰" },
+    { to: "/world-markets", label: "World Mkts", icon: "🌐" },
     { to: "/source-health", label: "Source Health", icon: "⚙" },
   ];
 

@@ -18,7 +18,8 @@ function computeSip(params) {
   // Use end date if set, otherwise now
   const hasEnd = endMonth > 0 && endYear > 0;
   const end = hasEnd ? new Date(endYear, endMonth - 1, 1) : now;
-  const cutoff = end < now ? end : now; // SIPs stop at end, growth calculated to now
+  // Use end date as cutoff if set (projection), otherwise now
+  const cutoff = hasEnd ? end : now; // SIPs stop at end, growth calculated to now
 
   let totalMonths = monthsBetween(start, cutoff);
   if (totalMonths < 0) return { rows: [], totalInv: 0, totalCur: 0, niftyInv: 0, goldInv: 0, niftyCur: 0, goldCur: 0 };
@@ -38,7 +39,8 @@ function computeSip(params) {
     const goldAmt = sipAmt - niftyAmt;
 
     // Growth always calculated to now (current value)
-    const monthsActive = monthsBetween(sipDate, now);
+    // Future SIPs get monthsActive = 0 (no growth yet)
+    const monthsActive = Math.max(0, monthsBetween(sipDate, now));
     const yearsActive = monthsActive / 12;
 
     const niftyFactor = Math.pow(1 + niftyCagr / 100, yearsActive);
