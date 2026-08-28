@@ -152,6 +152,30 @@ export async function fetchHistoricalCagr() {
   return { nifty: calcCagr(nifty), gold: calcCagr(gold) };
 }
 
+// ── Live ETF pair prices for PairsMonitor ──
+export async function fetchEtfPair() {
+  const results = await yahooQuotes(["BANKBEES.NS", "SETFNIFBK.NS"]);
+  if (results.length < 2) return null;
+  const getPrice = (r) => r?.meta?.regularMarketPrice || r?.meta?.chartPreviousClose || 0;
+  const bankbees = getPrice(results[0]);
+  const setfnifbk = getPrice(results[1]);
+  const spread = +(bankbees - setfnifbk).toFixed(2);
+  return { bankbees, setfnifbk, spread };
+}
+
+// ── Live Nifty PE estimate ──
+// Nifty 50 trailing EPS estimate ≈ ₹1,100 (based on FY26 consensus)
+const NIFTY_EPS_ESTIMATE = 1100;
+export async function fetchNiftyPe() {
+  const data = await fetchJson(`https://query1.finance.yahoo.com/v8/finance/chart/${YH.nifty}?range=1d&interval=1d`, 8000);
+  if (!data?.chart?.result?.[0]?.meta) return null;
+  const price = data.chart.result[0].meta.regularMarketPrice || data.chart.result[0].meta.chartPreviousClose || 0;
+  if (!price) return null;
+  const pe = +(price / NIFTY_EPS_ESTIMATE).toFixed(1);
+  const earningsYield = +(1 / pe * 100).toFixed(1);
+  return { niftyPE: pe, niftyPrice: price, earningsYield };
+}
+
 // ────────────────────────────────────────────────────────────
 // RSSHub NEWS (public instance)
 // ────────────────────────────────────────────────────────────
