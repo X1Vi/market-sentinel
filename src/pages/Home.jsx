@@ -1,5 +1,3 @@
-import { useState } from "react";
-import { generateNiftyIntraday } from "../data/seedData.js";
 import NiftyChart from "../components/NiftyChart.jsx";
 import SentimentOverview from "../components/SentimentOverview.jsx";
 import NewsFeed from "../components/NewsFeed.jsx";
@@ -12,16 +10,10 @@ import PortfolioTracker from "../components/PortfolioTracker.jsx";
 import Insights from "../components/Insights.jsx";
 
 export default function Home() {
-  const [niftyData] = useState(() => generateNiftyIntraday());
-  const last = niftyData[niftyData.length - 1];
-  const open = niftyData[0];
-
   return (
     <div className="space-y-5">
       <div className="grid gap-5 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <NiftyChart data={niftyData} last={last} open={open} />
-        </div>
+        <div className="lg:col-span-2"><NiftyChart /></div>
         <SentimentOverview />
       </div>
       <div className="grid gap-5 lg:grid-cols-5">

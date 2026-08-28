@@ -1,11 +1,24 @@
-import { stocks } from "../data/seedData.js";
+import { fetchStocks } from "../api/liveData.js";
+import { useLiveData } from "../api/liveData.js";
 
 const D_MAP = { BULLISH: "🟢", NEUTRAL: "⚪", BEARISH: "🔴" };
 
 export default function StockWatchlist() {
+  const { data: stocks, loading } = useLiveData(fetchStocks, null, 60000);
+
+  // Show loading state while fetching
+  if (loading && !stocks?.length) return (
+    <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
+      <h3 className="text-sm font-medium text-zinc-400">Stock Watchlist</h3>
+      <p className="mt-4 text-center text-xs text-zinc-600">Loading live prices...</p>
+    </div>
+  );
+
+  if (!stocks?.length) return null;
+
   return (
     <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
-      <h3 className="mb-3 text-sm font-medium text-zinc-400">Stock Watchlist</h3>
+      <h3 className="mb-3 text-sm font-medium text-zinc-400">Stock Watchlist {stocks[0]?.ltp ? "● LIVE" : ""}</h3>
       <div className="space-y-1.5">
         {stocks.map((s) => (
           <div key={s.symbol} className="rounded-lg border border-zinc-800/60 bg-zinc-900/60 px-3 py-2.5 transition hover:border-zinc-700">
@@ -20,13 +33,12 @@ export default function StockWatchlist() {
                   <span className={`text-[11px] font-semibold ${s.change >= 0 ? "text-emerald-400" : "text-red-400"}`}>
                     {s.change >= 0 ? "+" : ""}{s.change.toFixed(2)}%
                   </span>
-                  <span>{D_MAP[s.direction]}</span>
+                  <span>{D_MAP[s.direction] || "⚪"}</span>
                 </div>
               </div>
               <div className="ml-3 flex flex-col items-center">
                 <div className="h-6 w-16 rounded-sm bg-zinc-800/60">
-                  <div
-                    className="h-full rounded-sm transition-all"
+                  <div className="h-full rounded-sm transition-all"
                     style={{
                       width: `${Math.abs(s.sentiment) * 60 + 20}%`,
                       backgroundColor: s.sentiment > 0.3 ? "#22c55e" : s.sentiment < -0.1 ? "#ef4444" : "#71717a",

@@ -1,10 +1,22 @@
-import { indices, stocks } from "../data/seedData.js";
+import { useLiveData, fetchIndices, fetchStocks } from "../api/liveData.js";
 
 export default function MarketTicker() {
-  const tickerItems = [
-    ...Object.values(indices).map((i) => ({ label: i.name, value: i.value.toLocaleString("en-IN"), change: i.change })),
-    ...stocks.slice(0, 6).map((s) => ({ label: s.symbol, value: `₹${s.ltp.toFixed(2)}`, change: s.change })),
+  const { data: indices } = useLiveData(fetchIndices, null, 30000);
+  const { data: stockList } = useLiveData(fetchStocks, null, 60000);
+
+  const all = [
+    ...(indices ? Object.values(indices) : []),
+    ...(stockList || []).slice(0, 6),
   ];
+  if (!all.length) return null;
+
+  const tickerItems = all.map((item) => {
+    const isIndex = "name" in item;
+    const label = isIndex ? item.name : item.symbol;
+    const value = isIndex ? item.value.toLocaleString("en-IN") : `₹${item.ltp.toFixed(2)}`;
+    return { label, value, change: item.change };
+  });
+
   return (
     <div className="overflow-hidden border-b border-zinc-800 bg-zinc-900/30">
       <div className="ticker-track flex gap-0 whitespace-nowrap">
