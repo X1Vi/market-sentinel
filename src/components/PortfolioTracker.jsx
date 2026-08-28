@@ -1,5 +1,6 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { portfolioTracker } from "../data/seedData.js";
+import { fetchHistoricalCagr } from "../api/liveData.js";
 
 function fmt(n) { return Number(n).toLocaleString("en-IN", { maximumFractionDigits: 0 }); }
 function fmtPct(n, d = 1) { return `${n >= 0 ? "+" : ""}${Number(n).toFixed(d)}%`; }
@@ -92,6 +93,17 @@ export default function PortfolioTracker() {
   const [extraNiftyInv, setExtraNiftyInv] = useState(0);
   const [extraGoldInv, setExtraGoldInv] = useState(0);
   const [extraLog, setExtraLog] = useState([]);
+
+  // Load real historical CAGR from Yahoo Finance
+  const [liveCagrLoaded, setLiveCagrLoaded] = useState(false);
+  useEffect(() => {
+    if (liveCagrLoaded) return;
+    fetchHistoricalCagr().then((cagr) => {
+      if (cagr.nifty !== null) setNiftyCagr(cagr.nifty);
+      if (cagr.gold !== null) setGoldCagr(cagr.gold);
+      setLiveCagrLoaded(true);
+    });
+  }, [liveCagrLoaded]);
 
   // ── compute SIP projection ──
   const sip = useMemo(
