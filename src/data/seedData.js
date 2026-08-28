@@ -260,12 +260,12 @@ export const pairsData = {
 
 // ---- ETF Momentum / Sector Rotation ----
 export const etfMomentum = [
-  { symbol: "GOLDBEES",  name: "Gold ETF",         category: "Commodity",  m1: +3.4, m3: +8.2,  m12: +22.9, momentum: 22.9, rank: 1 },
-  { symbol: "JUNIORBEES",name: "Nifty Next 50",     category: "Broad Market", m1: +2.8, m3: +7.1,  m12: +20.3, momentum: 20.3, rank: 2 },
-  { symbol: "NIFTYBEES", name: "Nifty 50",          category: "Broad Market", m1: +2.1, m3: +5.8,  m12: +18.2, momentum: 18.2, rank: 3 },
-  { symbol: "CPSEETF",   name: "CPSE (PSU)",        category: "PSU",         m1: +1.2, m3: +4.5,  m12: +16.8, momentum: 16.8, rank: 4 },
-  { symbol: "BANKBEES",  name: "Nifty Bank",        category: "Banking",     m1: +1.8, m3: +4.9,  m12: +14.5, momentum: 14.5, rank: 5 },
-  { symbol: "PSUBNKBEES",name: "PSU Bank",          category: "Banking",     m1: +0.5, m3: +3.2,  m12: +12.1, momentum: 12.1, rank: 6 },
+  { symbol: "GOLDBEES",  name: "Gold ETF",         category: "Commodity",  ltp: 63.45, change: 0.76, m1: +3.4, m3: +8.2,  m12: +22.9, momentum: 22.9, rank: 1 },
+  { symbol: "JUNIORBEES",name: "Nifty Next 50",     category: "Broad Market", ltp: 542.10, change: 0.52, m1: +2.8, m3: +7.1,  m12: +20.3, momentum: 20.3, rank: 2 },
+  { symbol: "NIFTYBEES", name: "Nifty 50",          category: "Broad Market", ltp: 246.80, change: 0.38, m1: +2.1, m3: +5.8,  m12: +18.2, momentum: 18.2, rank: 3 },
+  { symbol: "CPSEETF",   name: "CPSE (PSU)",        category: "PSU",         ltp: 84.20, change: 0.29, m1: +1.2, m3: +4.5,  m12: +16.8, momentum: 16.8, rank: 4 },
+  { symbol: "BANKBEES",  name: "Nifty Bank",        category: "Banking",     ltp: 524.15, change: 0.45, m1: +1.8, m3: +4.9,  m12: +14.5, momentum: 14.5, rank: 5 },
+  { symbol: "PSUBNKBEES",name: "PSU Bank",          category: "Banking",     ltp: 72.30, change: 0.18, m1: +0.5, m3: +3.2,  m12: +12.1, momentum: 12.1, rank: 6 },
 ];
 
 // ---- Market Valuation ----

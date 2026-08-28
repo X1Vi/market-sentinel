@@ -1,10 +1,11 @@
+import { useMemo } from "react";
 import { useLiveData, fetchEtfPrices } from "../api/liveData.js";
 import { etfMomentum as seed } from "../data/seedData.js";
 
 export default function EtfMomentum() {
   const { data: live } = useLiveData(fetchEtfPrices, null, 60000);
   const list = live || seed;
-  const ranked = list.map((e, i) => ({ ...e, rank: i + 1 }));
+  const ranked = useMemo(() => list.map((e, i) => ({ ...e, rank: i + 1 })), [list]);
 
   if (!ranked.length) return null;
 
