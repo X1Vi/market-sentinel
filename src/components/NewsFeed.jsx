@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { newsArticles } from "../data/seedData.js";
+import { useLiveData, fetchAllNews } from "../api/liveData.js";
 
 function sentStyle(n) {
   if (n > 0.4) return { bg: "bg-emerald-500/10", text: "text-emerald-300" };
@@ -16,64 +16,48 @@ const SRC_COLORS = {
 
 export default function NewsFeed() {
   const [filter, setFilter] = useState("all");
+  const { data: liveArticles } = useLiveData(() => fetchAllNews({ region: filter, max: 30 }), null, 120000);
+  const articles = liveArticles || [];
 
-  const filtered = filter === "all"
-    ? newsArticles
-    : filter === "positive"
-      ? newsArticles.filter((n) => n.sentiment > 0.2)
-      : newsArticles.filter((n) => n.sentiment < -0.1);
+  const filtered = filter === "all" ? articles
+    : filter === "positive" ? articles.filter((n) => (n.sentiment || 0) > 0.2)
+    : articles.filter((n) => (n.sentiment || 0) < -0.1);
 
   return (
     <div className="rounded-xl border border-zinc-800 bg-zinc-900/40 p-4">
       <div className="mb-3 flex items-center justify-between">
-        <h3 className="text-sm font-medium text-zinc-400">Latest News Sentiment</h3>
+        <h3 className="text-sm font-medium text-zinc-400">Latest News Sentiment {liveArticles ? "● LIVE" : ""}</h3>
         <div className="flex gap-1">
           {["all", "positive", "negative"].map((f) => (
-            <button
-              key={f}
-              onClick={() => setFilter(f)}
-              className={`rounded-md px-2.5 py-1 text-[11px] font-medium uppercase ${
-                filter === f ? "bg-zinc-700 text-zinc-100" : "bg-zinc-800/60 text-zinc-500 hover:text-zinc-300"
-              }`}
-            >
-              {f}
-            </button>
+            <button key={f} onClick={() => setFilter(f)}
+              className={`rounded-md px-2.5 py-1 text-[11px] font-medium uppercase ${filter === f ? "bg-zinc-700 text-zinc-100" : "bg-zinc-800/60 text-zinc-500 hover:text-zinc-300"}`}>{f}</button>
           ))}
         </div>
       </div>
 
       <div className="max-h-[440px] space-y-2 overflow-y-auto pr-1">
-        {filtered.map((item) => {
-          const s = sentStyle(item.sentiment);
+        {filtered.map((item, i) => {
+          const s = sentStyle(item.sentiment || 0);
           return (
-            <a
-              key={item.id}
-              href={item.url || "#"}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block rounded-lg border border-zinc-800 bg-zinc-900/60 p-3 transition hover:border-emerald-700/50 hover:bg-zinc-800/50"
-            >
+            <a key={item.id || i} href={item.url || "#"} target="_blank" rel="noopener noreferrer"
+              className="block rounded-lg border border-zinc-800 bg-zinc-900/60 p-3 transition hover:border-emerald-700/50 hover:bg-zinc-800/50">
               <div className="mb-1.5 flex items-center gap-2">
-                <span
-                  className="rounded px-1.5 py-0.5 text-[10px] font-bold uppercase text-white"
-                  style={{ backgroundColor: SRC_COLORS[item.source] || "#52525b" }}
-                >
-                  {item.sourceIcon}
+                <span className="rounded px-1.5 py-0.5 text-[10px] font-bold uppercase text-white"
+                  style={{ backgroundColor: SRC_COLORS[item.source] || "#52525b" }}>
+                  {item.sourceIcon || item.source?.slice(0, 2) || "NN"}
                 </span>
-                <span className="text-[10px] text-zinc-500">{item.time} IST</span>
+                <span className="text-[10px] text-zinc-500">{item.time || ""}</span>
                 <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold ${s.bg} ${s.text}`}>
-                  {item.sentimentLabel}
+                  {item.sentimentLabel || "—"}
                 </span>
               </div>
-              <p className="text-sm font-medium leading-snug text-zinc-200 group-hover:text-emerald-300">{item.title}</p>
-              <p className="mt-1 text-[11px] leading-relaxed text-zinc-500">{item.summary}</p>
-              <div className="mt-2 flex flex-wrap gap-1">
-                {item.tickers.map((t) => (
-                  <span key={t} className="rounded bg-zinc-800/60 px-1.5 py-0.5 text-[10px] font-medium text-zinc-400">
-                    {t}
-                  </span>
-                ))}
-              </div>
+              <p className="text-sm font-medium leading-snug text-zinc-200">{item.title}</p>
+              <p className="mt-1 text-[11px] leading-relaxed text-zinc-500">{item.summary || ""}</p>
+              {item.tickers?.length > 0 && (
+                <div className="mt-2 flex flex-wrap gap-1">
+                  {item.tickers.map((t) => <span key={t} className="rounded bg-zinc-800/60 px-1.5 py-0.5 text-[10px] font-medium text-zinc-400">{t}</span>)}
+                </div>
+              )}
             </a>
           );
         })}

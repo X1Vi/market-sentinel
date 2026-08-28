@@ -83,6 +83,58 @@ export async function fetchGold() {
   return { etfs: seedGold, spot: { price: +price.toFixed(2), change: ch } };
 }
 
+// ── Live ETF prices (NIFTYBEES, GOLDBEES, etc.) ──
+const ETF_SYMBOLS = ["NIFTYBEES.NS", "GOLDBEES.NS", "BANKBEES.NS", "JUNIORBEES.NS", "SETFNIFBK.NS", "PSUBNKBEES.NS", "CPSEETF.NS"];
+const ETF_NAMES = { "NIFTYBEES.NS": "NIFTYBEES", "GOLDBEES.NS": "GOLDBEES", "BANKBEES.NS": "BANKBEES", "JUNIORBEES.NS": "JUNIORBEES", "SETFNIFBK.NS": "SETFNIFBK", "PSUBNKBEES.NS": "PSUBNKBEES", "CPSEETF.NS": "CPSEETF" };
+const ETF_CATEGORIES = { "NIFTYBEES.NS": "Broad Market", "GOLDBEES.NS": "Commodity", "BANKBEES.NS": "Banking", "JUNIORBEES.NS": "Broad Market", "SETFNIFBK.NS": "Banking", "PSUBNKBEES.NS": "Banking", "CPSEETF.NS": "PSU" };
+
+export async function fetchEtfPrices() {
+  const results = await yahooQuotes(ETF_SYMBOLS);
+  if (!results.length) return null;
+  return results.map((r, i) => {
+    const meta = r?.meta;
+    const sym = ETF_SYMBOLS[i];
+    if (!meta) return null;
+    const price = meta.regularMarketPrice || meta.chartPreviousClose || 0;
+    const prev = meta.previousClose || price;
+    const ch = prev ? +(((price - prev) / prev) * 100).toFixed(2) : 0;
+    return { symbol: ETF_NAMES[sym] || sym, name: ETF_NAMES[sym] || sym, category: ETF_CATEGORIES[sym] || "Other", ltp: price, change: ch, rank: 0 };
+  }).filter(Boolean);
+}
+
+// ── Live commodities from Yahoo Finance ──
+const COMMODITY_SYMBOLS = ["GC=F", "SI=F", "CL=F", "BZ=F", "HG=F"];
+const COMMODITY_NAMES = { "GC=F": "Gold", "SI=F": "Silver", "CL=F": "Crude WTI", "BZ=F": "Brent", "HG=F": "Copper" };
+
+export async function fetchCommodities() {
+  const results = await yahooQuotes(COMMODITY_SYMBOLS);
+  if (!results.length) return null;
+  return results.map((r) => {
+    const meta = r?.meta; if (!meta) return null;
+    const price = meta.regularMarketPrice || meta.chartPreviousClose || 0;
+    const prev = meta.previousClose || price;
+    const ch = prev ? +(((price - prev) / prev) * 100).toFixed(2) : 0;
+    const name = COMMODITY_NAMES[meta.symbol] || meta.symbol;
+    return { name, symbol: meta.symbol, price, change: `${ch >= 0 ? "+" : ""}${ch}%`, sentiment: ch >= 0 ? "bullish" : "bearish" };
+  }).filter(Boolean);
+}
+
+// ── Live currencies from Frankfurter (free, no key) ──
+export async function fetchCurrencies() {
+  const data = await fetchJson("https://api.frankfurter.app/latest?from=USD", 8000);
+  if (!data?.rates) return null;
+  const rates = data.rates;
+  const base = { pair: "DXY", rate: 1, change: "0.00%", direction: "neutral" };
+  return [
+    { pair: "EUR/USD", rate: +(1 / (rates.EUR || 0.92)).toFixed(4), change: "—", direction: rates.EUR > 0.83 ? "bullish" : "bearish" },
+    { pair: "GBP/USD", rate: +(1 / (rates.GBP || 0.78)).toFixed(4), change: "—", direction: rates.GBP > 0.75 ? "bullish" : "bearish" },
+    { pair: "USD/JPY", rate: rates.JPY || 144, change: "—", direction: "neutral" },
+    { pair: "USD/CHF", rate: rates.CHF || 0.85, change: "—", direction: "neutral" },
+    { pair: "USD/CNH", rate: rates.CNY || 7.12, change: "—", direction: "neutral" },
+    base,
+  ];
+}
+
 // Real historical CAGR from Yahoo Finance (1-year lookback)
 export async function fetchHistoricalCagr() {
   const now = Math.floor(Date.now() / 1000);
